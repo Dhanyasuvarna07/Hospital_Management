@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hospital Management System</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #000;
+        color: #fff;
+    }
+
+    header {
+        background: #111;
+        padding: 15px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        border-bottom: 1px solid #444;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background: #111;
+        padding: 15px;
+        border: 1px solid #444;
+        border-radius: 10px;
+    }
+
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: none;
+        outline: none;
+    }
+
+    input {
+        background: #000;
+        color: #fff;
+        border: 1px solid #444;
+    }
+
+    button {
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #ccc;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 10px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #444;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background: #222;
+    }
+</style>
+</head>
+
+<body>
+
+<header>Hospital Management System</header>
+
+<div class="container">
+
+    <!-- PATIENT FORM -->
+    <div class="card">
+        <h3>Add Patient</h3>
+        <input id="name" placeholder="Patient Name">
+        <input id="age" type="number" placeholder="Age">
+        <input id="gender" placeholder="Gender">
+        <button onclick="addPatient()">Add Patient</button>
+    </div>
+
+    <!-- BILL FORM -->
+    <div class="card">
+        <h3>Generate Bill</h3>
+        <input id="billPatientId" placeholder="Patient ID">
+        <input id="cost" type="number" placeholder="Amount">
+        <button onclick="generateBill()">Generate Bill</button>
+    </div>
+
+    <!-- APPOINTMENT -->
+    <div class="card">
+        <h3>Appointment</h3>
+        <input id="appPatientId" placeholder="Patient ID">
+        <button onclick="addAppointment()">Add Appointment</button>
+    </div>
+
+    <!-- PATIENT LIST -->
+    <div class="card">
+        <h3>Patients</h3>
+        <button onclick="loadPatients()">Load Patients</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Visits</th>
+                </tr>
+            </thead>
+            <tbody id="patientTable"></tbody>
+        </table>
+    </div>
+
+    <!-- BILL LIST -->
+    <div class="card">
+        <h3>Bills</h3>
+        <button onclick="loadBills()">Load Bills</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="billTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+// ---------------- PATIENTS ----------------
+function deletePatient(id) {
+    fetch(`${API}/patients/${id}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadPatients();
+    });
+}
+function addPatient() {
+    fetch(`${API}/patients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            age: document.getElementById("age").value,
+            gender: document.getElementById("gender").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadPatients();
+    });
+}
+
+function loadPatients() {
+    fetch(`${API}/patients`)
+    .then(res => res.json())
+    .then(data => {
+
+        if (!Array.isArray(data)) {
+            console.log("Error:", data);
+            return;
+        }
+
+        let rows = "";
+        data.forEach(p => {
+            rows += `
+    <tr>
+        <td>${p.PatientID}</td>
+        <td>${p.PatientName}</td>
+        <td>${p.Age}</td>
+        <td>${p.Gender}</td>
+        <td>${p.VisitCount ?? 0}</td>
+        <td>
+            <button onclick="deletePatient(${p.PatientID})">Delete</button>
+            <button onclick='editPatient(${p.PatientID}, "${p.PatientName}", ${p.Age}, "${p.Gender}")'>Edit</button>
+        </td>
+    </tr>
+`;
+            
+        });
+
+        document.getElementById("patientTable").innerHTML = rows;
+    });
+}
+
+// ---------------- BILLS ----------------
+function generateBill() {
+    fetch(`${API}/generateBill`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            patientId: document.getElementById("billPatientId").value,
+            cost: document.getElementById("cost").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadBills();
+    });
+}
+
+function loadBills() {
+    fetch(`${API}/bills`)
+    .then(res => res.json())
+    .then(data => {
+
+        if (!Array.isArray(data)) {
+            console.log("Error:", data);
+            return;
+        }
+
+        let rows = "";
+        data.forEach(b => {
+            rows += `
+                <tr>
+                    <td>${b.PatientName}</td>
+                    <td>${b.Amount}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("billTable").innerHTML = rows;
+    });
+}
+
+// ---------------- APPOINTMENT ----------------
+function addAppointment() {
+    fetch(`${API}/appointment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            patientId: document.getElementById("appPatientId").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadPatients();
+    });
+}
+//---------------UPDATE--------------
+function editPatient(id, name, age, gender) {
+    document.getElementById("name").value = name;
+    document.getElementById("age").value = age;
+    document.getElementById("gender").value = gender;
+
+    // change button behavior
+    const btn = document.querySelector("button[onclick='addPatient()']");
+    btn.textContent = "Update Patient";
+
+    btn.onclick = function () {
+        updatePatient(id);
+    };
+}
+function updatePatient(id) {
+    fetch(`${API}/patients/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            age: document.getElementById("age").value,
+            gender: document.getElementById("gender").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        document.getElementById("name").value = "";
+document.getElementById("age").value = "";
+document.getElementById("gender").value = "";
+
+        // reset button back to Add
+       const btn = document.querySelector("button[onclick='addPatient()']");
+btn.textContent = "Add Patient";
+btn.onclick = addPatient;
+
+        loadPatients();
+    });
+}
+
+// AUTO LOAD
+loadPatients();
+loadBills();
+</script>
+
+</body>
+</html>
