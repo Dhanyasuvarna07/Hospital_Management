@@ -39,50 +39,98 @@ app.get("/patients", (req, res) => {
         }
     );
 });
-
-// =====================
-// ADD PATIENT
-// =====================
-app.post("/patients", (req, res) => {
-    const { name, age, gender } = req.body;
-
+app.get("/appointments", (req,res)=>{
     db.query(
-        "INSERT INTO patients (PatientName, Age, Gender) VALUES (?, ?, ?)",
-        [name, age, gender],
-        (err, result) => {
-            if (err) {
+        "SELECT * FROM Appointments",
+        (err,result)=>{
+            if(err){
                 console.log(err);
                 return res.status(500).json(err);
             }
-
-            res.json({
-                message: "Patient Added Successfully"
-            });
+            res.json(result);
         }
     );
 });
 
 // =====================
-// UPDATE PATIENT
-// =====================
+// ADD PATIENT
+app.post('/patients', (req,res)=>{
+
+    console.log(req.body);
+
+    const {name, age, department, gender} = req.body;
+
+    const sql = `
+        INSERT INTO Patients
+        (PatientName, Age, Department, Gender)
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(
+        sql,
+        [name, age, department, gender],
+        (err,result)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json(err);
+            }
+
+            res.json({
+                message:"Patient Added"
+            });
+        }
+    );
+});
 app.put("/patients/:id", (req, res) => {
-    const id = req.params.id;
+
     const { name, age, gender } = req.body;
 
     db.query(
-        "UPDATE patients SET PatientName=?, Age=?, Gender=? WHERE PatientID=?",
-        [name, age, gender, id],
-        (err, result) => {
+        `UPDATE Patients
+         SET PatientName=?, Age=?, Gender=?
+         WHERE PatientID=?`,
+        [name, age, gender, req.params.id],
+        (err) => {
+
             if (err) {
                 console.log(err);
                 return res.status(500).json(err);
             }
 
             res.json({
-                message: "Patient Updated Successfully"
+                message: "Patient Updated"
             });
         }
     );
+});
+// =====================
+// UPDATE PATIENT
+// =====================
+app.get("/bills", (req, res) => {
+
+    const sql = `
+        SELECT
+            b.BillID,
+            b.PatientID,
+            p.PatientName,
+            b.Amount
+        FROM Bills b
+        LEFT JOIN Patients p
+        ON b.PatientID = p.PatientID
+        ORDER BY b.BillID DESC
+    `;
+
+    db.query(sql, (err, result) => {
+
+        if(err){
+            console.log(err);
+            return res.status(500).json(err);
+        }
+
+        console.log("BILLS RESULT:", result);
+
+        res.json(result);
+    });
 });
 
 // =====================
@@ -115,66 +163,81 @@ app.delete("/patients/:id", (req, res) => {
 // GENERATE BILL
 // =====================
 app.post("/generateBill", (req, res) => {
-
+console.log("GENERATE BILL API CALLED");
+console.log("BODY:", req.body);
     const { patientId, cost } = req.body;
 
-    db.query(
-        "INSERT INTO bills (PatientID, Amount) VALUES (?, ?)",
-        [patientId, cost],
-        (err, result) => {
+    console.log("Received:", patientId, cost);
 
-            if (err) {
+    db.query(
+        "SELECT * FROM Patients WHERE PatientID=?",
+        [patientId],
+        (err,result)=>{
+ console.log("Received:", patientId);
+        console.log("PATIENT SEARCH:", result);
+        console.log("Rows Found:", result.length);
+
+
+            if(err){
                 console.log(err);
-                return res.status(500).json(err);
+                return res.json(err);
             }
 
-            res.json({
-                message: "Bill Generated Successfully"
-            });
+            if(result.length===0){
+                return res.json({
+                    message:"Patient ID does not exist"
+                });
+            }
+
+            console.log("FOUND PATIENT");
+
+            db.query(
+                "INSERT INTO Bills (PatientID,Amount) VALUES (?,?)",
+                [patientId,cost],
+                (err)=>{
+
+                    if(err){
+                        console.log(err);
+                        return res.json(err);
+                    }
+
+                    console.log("BILL INSERTED");
+
+                    res.json({
+                        message:"Bill Generated"
+                    });
+                }
+            );
         }
     );
 });
-
-// =====================
-// GET ALL BILLS
-// =====================
-app.get("/bills", (req, res) => {
-
-    db.query(
-        `SELECT p.PatientName, b.Amount
-         FROM bills b
-         JOIN patients p
-         ON p.PatientID = b.PatientID`,
-        (err, result) => {
-
-            if (err) {
-                console.log(err);
-                return res.status(500).json(err);
-            }
-
-            res.json(result);
-        }
-    );
-});
-
+           
 // =====================
 // ADD APPOINTMENT
 // =====================
-app.post("/appointment", (req, res) => {
+app.post("/appointments", (req, res) => {
 
     const { patientId } = req.body;
 
     db.query(
-        "INSERT INTO appointments (PatientID) VALUES (?)",
+        "INSERT INTO Appointments (PatientID) VALUES (?)",
         [patientId],
-        (err, result) => {
+        (err) => {
 
-            if (err) {
-                console.log(err);
-                return res.status(500).json(err);
-            }
+            if (err) return res.json(err);
 
-            res.json({ message: "Appointment Added Successfully" });
+            db.query(
+                "UPDATE Patients SET VisitCount = VisitCount + 1 WHERE PatientID = ?",
+                [patientId],
+                (err2) => {
+
+                    if (err2) return res.json(err2);
+
+                    res.json({
+                        message: "Appointment Added"
+                    });
+                }
+            );
         }
     );
 });
