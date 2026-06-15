@@ -5,109 +5,286 @@
 <title>Hospital Management System</title>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #000;
-        color: #fff;
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#eef7ff,#dbeafe,#f0fdf4);
+    padding-bottom:50px;
+}
+
+   header{
+    background:linear-gradient(135deg,#0F4C81,#00B4D8);
+    color:white;
+    padding:20px 30px;
+    font-size:28px;
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+}
+
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin:20px;
+}
+
+.stat-card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.container{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.card h3{
+    margin-bottom:15px;
+    color:#0F4C81;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #ddd;
+    border-radius:12px;
+}
+
+button{
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#0F4C81,#00B4D8);
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+    border-radius:15px;
+    margin-top:15px;
+}
+#billTable td:nth-child(1),
+#billTable td:nth-child(2),
+.card table th{
+    text-align:center;
+}
+#appointmentTable td,
+#appointmentTable th{
+    text-align:center;
+}
+
+th{
+    background:#0F4C81;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+}
+
+tbody tr:nth-child(even){
+    background:#f8fbff;
+}
+
+tbody tr:hover{
+    background:#e3f2fd;
+}
+
+.action-btn{
+    display:flex;
+    gap:5px;
+}
+
+.edit-btn{
+    background:#4CAF50;
+}
+
+.delete-btn{
+    background:#f44336;
+}
+
+.fab{
+    position:fixed;
+    right:25px;
+    bottom:25px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    font-size:24px;
+}
+
+body.dark{
+    background:#0f172a;
+}
+
+body.dark .card,
+body.dark .stat-card{
+    background:#1e293b;
+    color:white;
+}
+
+body.dark table{
+    background:#1e293b;
+}
+
+body.dark td{
+    color:white;
+}
+
+body.dark input,
+body.dark select{
+    background:#334155;
+    color:white;
+    border:none;
+}
+
+@media(max-width:900px){
+
+    .container{
+        grid-template-columns:1fr;
     }
 
-    header {
-        background: #111;
-        padding: 15px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-        border-bottom: 1px solid #444;
+    .stats{
+        grid-template-columns:1fr 1fr;
     }
-
-    .container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding: 20px;
-    }
-
-    .card {
-        background: #111;
-        padding: 15px;
-        border: 1px solid #444;
-        border-radius: 10px;
-    }
-
-    input, button {
-        width: 100%;
-        padding: 10px;
-        margin: 5px 0;
-        border: none;
-        outline: none;
-    }
-
-    input {
-        background: #000;
-        color: #fff;
-        border: 1px solid #444;
-    }
-
-    button {
-        background: #fff;
-        color: #000;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    button:hover {
-        background: #ccc;
-    }
-
-    table {
-        width: 100%;
-        margin-top: 10px;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        border: 1px solid #444;
-        padding: 8px;
-        text-align: left;
-    }
-
-    th {
-        background: #222;
-    }
+} 
 </style>
+
 </head>
 
 <body>
+<header>
+    🏥 Hospital Management System
 
-<header>Hospital Management System</header>
+    <button id="themeBtn"
+    style="width:auto;padding:10px 15px;float:right;">
+        🌙
+    </button>
+</header>
+<div class="stats">
+
+    <div class="stat-card">
+        <h2>👨‍👩‍👧‍👦 <span id="totalPatients">0</span></h2>
+<p>Total Patients</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>👨‍⚕️ 12</h2>
+        <p>Doctors</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>📅 <span id="totalAppointments">0</span></h2>
+        <p>Appointments</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>💰 ₹<span id="totalRevenue">0</span></h2>
+        <p>Revenue</p>
+    </div>
+
+</div>
 
 <div class="container">
 
-    <!-- PATIENT FORM -->
-    <div class="card">
-        <h3>Add Patient</h3>
-        <input id="name" placeholder="Patient Name">
-        <input id="age" type="number" placeholder="Age">
-        <input id="gender" placeholder="Gender">
-        <button onclick="addPatient()">Add Patient</button>
-    </div>
+     <!-- PATIENT FORM -->
+<div class="card">
+    <h3>👨‍👩‍👧‍👦 Patients</h3>
 
+    <input id="name" placeholder="Patient Name">
+    <input id="age" type="number" placeholder="Age">
+
+    <select id="department">
+        <option value="">🏥 Select Department</option>
+        <option>🫀 Cardiology</option>
+        <option>🧠 Neurology</option>
+        <option>🦴 Orthopedics</option>
+        <option>👶 Pediatrics</option>
+        <option>💊 General Medicine</option>
+    </select>
+
+    <select id="gender">
+        <option value="">👤 Select Gender</option>
+        <option>👨 Male</option>
+        <option>👩 Female</option>
+        <option>⚧ Other</option>
+    </select>
+
+    <button onclick="addPatient()">➕ Add Patient</button>
+</div>
     <!-- BILL FORM -->
     <div class="card">
-        <h3>Generate Bill</h3>
+        <h3>🧾 Bills</h3>
         <input id="billPatientId" placeholder="Patient ID">
         <input id="cost" type="number" placeholder="Amount">
         <button onclick="generateBill()">Generate Bill</button>
     </div>
 
     <!-- APPOINTMENT -->
-    <div class="card">
-        <h3>Appointment</h3>
-        <input id="appPatientId" placeholder="Patient ID">
-        <button onclick="addAppointment()">Add Appointment</button>
-    </div>
+     <!-- APPOINTMENTS -->
+<div class="card">
+    <h3>📅 Appointments</h3>
 
+    <input id="appPatientId" placeholder="Patient ID">
+
+    <button onclick="addAppointment()">
+        Add Appointment
+    </button>
+
+    <button onclick="loadAppointments()">
+        Load Appointments
+    </button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+            </tr>
+        </thead>
+        <tbody id="appointmentTable"></tbody>
+    </table>
+</div>
+    
     <!-- PATIENT LIST -->
     <div class="card">
         <h3>Patients</h3>
@@ -115,11 +292,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Gender</th>
-                    <th>Visits</th>
+                  <th>ID</th>
+<th>Department</th>
+<th>Name</th>
+<th>Age</th>
+<th>Gender</th>
+<th>Visits</th>
+<th>Actions</th>  
                 </tr>
             </thead>
             <tbody id="patientTable"></tbody>
@@ -142,7 +321,6 @@
     </div>
 
 </div>
-
 <script>
 const API = "http://localhost:3000";
 
@@ -157,101 +335,57 @@ function deletePatient(id) {
         loadPatients();
     });
 }
-function addPatient() {
+    
+     function addPatient() {
     fetch(`${API}/patients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            name: document.getElementById("name").value,
-            age: document.getElementById("age").value,
-            gender: document.getElementById("gender").value
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            name:document.getElementById("name").value,
+            age:document.getElementById("age").value,
+            department:document.getElementById("department").value,
+            gender:document.getElementById("gender").value
         })
     })
     .then(res => res.json())
-    .then(data => {
-        alert(data.message);
-        loadPatients();
-    });
+.then(data => {
+    alert(data.message);
+    loadPatients();
+})
 }
-
-function loadPatients() {
-    fetch(`${API}/patients`)
+    function loadAppointments() {
+    fetch(`${API}/appointments`)
     .then(res => res.json())
     .then(data => {
 
-        if (!Array.isArray(data)) {
-            console.log("Error:", data);
-            return;
-        }
+        console.log("Appointments:", data);
+
+        if (!Array.isArray(data)) return;
 
         let rows = "";
-        data.forEach(p => {
-            rows += `
-    <tr>
-        <td>${p.PatientID}</td>
-        <td>${p.PatientName}</td>
-        <td>${p.Age}</td>
-        <td>${p.Gender}</td>
-        <td>${p.VisitCount ?? 0}</td>
-        <td>
-            <button onclick="deletePatient(${p.PatientID})">Delete</button>
-            <button onclick='editPatient(${p.PatientID}, "${p.PatientName}", ${p.Age}, "${p.Gender}")'>Edit</button>
-        </td>
-    </tr>
-`;
-            
-        });
 
-        document.getElementById("patientTable").innerHTML = rows;
-    });
-}
-
-// ---------------- BILLS ----------------
-function generateBill() {
-    fetch(`${API}/generateBill`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            patientId: document.getElementById("billPatientId").value,
-            cost: document.getElementById("cost").value
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.message);
-        loadBills();
-    });
-}
-
-function loadBills() {
-    fetch(`${API}/bills`)
-    .then(res => res.json())
-    .then(data => {
-
-        if (!Array.isArray(data)) {
-            console.log("Error:", data);
-            return;
-        }
-
-        let rows = "";
-        data.forEach(b => {
+        data.forEach(a => {
             rows += `
                 <tr>
-                    <td>${b.PatientName}</td>
-                    <td>${b.Amount}</td>
+                    <td>${a.AppointmentID}</td>
+                    <td>${a.PatientID}</td>
                 </tr>
             `;
         });
-
-        document.getElementById("billTable").innerHTML = rows;
-    });
+document.getElementById("totalAppointments").innerText = data.length;
+        document.getElementById("appointmentTable").innerHTML = rows;
+    })
+    .catch(err => console.log(err));
 }
-
-// ---------------- APPOINTMENT ----------------
 function addAppointment() {
-    fetch(`${API}/appointment`, {
+
+    fetch(`${API}/appointments`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
             patientId: document.getElementById("appPatientId").value
         })
@@ -259,9 +393,112 @@ function addAppointment() {
     .then(res => res.json())
     .then(data => {
         alert(data.message);
+        loadAppointments();
         loadPatients();
-    });
+    })
+    .catch(err => console.log(err));
 }
+function loadPatients() {
+    fetch(`${API}/patients`)
+.then(res => res.json())
+.then(data => {
+    console.log("PATIENTS:", data);
+        if (!Array.isArray(data)) {
+            console.log("Error:", data);
+            console.log(data);
+            return;
+        }
+        document.getElementById("totalPatients").innerText = data.length;
+
+        let rows = "";
+       data.forEach((p, index) => {
+
+rows += `
+<tr>
+    <td>${index + 1}</td>
+    <td>${p.Department || "-"}</td>
+    <td>${p.PatientName}</td>
+    <td>${p.Age}</td>
+    <td>${p.Gender}</td>
+    <td><b>${p.VisitCount || 0}</b></td>
+
+    <td>
+        <div class="action-btn">
+
+            <button class="edit-btn"
+            onclick='editPatient(${p.PatientID},"${p.PatientName}",${p.Age},"${p.Gender}")'>
+            ✏️
+            </button>
+
+            <button class="delete-btn"
+            onclick="deletePatient(${p.PatientID})">
+            🗑️
+            </button>
+
+        </div>
+    </td>
+</tr>
+`;
+});
+document.getElementById("patientTable").innerHTML = rows;
+});
+}
+    
+
+// ---------------- BILLS ----------------
+
+   function generateBill() {
+
+    console.log("Patient ID:", document.getElementById("billPatientId").value);
+
+    fetch(`${API}/generateBill`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            patientId: document.getElementById("billPatientId").value,
+            cost: document.getElementById("cost").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("SERVER RESPONSE:", data);
+        alert(data.message);
+        loadBills();
+    })
+    .catch(err => console.log("ERROR:", err));
+}
+function loadBills() {
+    fetch(`${API}/bills`)
+    .then(res => res.json())
+    .then(data => {
+
+        console.log("BILLS RESPONSE:", data);
+
+        let rows = "";
+        let revenue = 0;
+
+        data.forEach(b => {
+            const amount = Number(b.Amount || 0);
+            const name = b.PatientName || "-";
+
+            revenue += amount;
+
+            rows += `
+                <tr>
+                    <td>${name}</td>
+                    <td>₹${amount}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("billTable").innerHTML = rows;
+        document.getElementById("totalRevenue").innerText = revenue;
+    })
+    .catch(err => console.log(err));
+}
+  
 //---------------UPDATE--------------
 function editPatient(id, name, age, gender) {
     document.getElementById("name").value = name;
@@ -295,7 +532,7 @@ document.getElementById("gender").value = "";
 
         // reset button back to Add
        const btn = document.querySelector("button[onclick='addPatient()']");
-btn.textContent = "Add Patient";
+btn.textContent = "🧑‍⚕️ Add Patient";
 btn.onclick = addPatient;
 
         loadPatients();
@@ -305,7 +542,20 @@ btn.onclick = addPatient;
 // AUTO LOAD
 loadPatients();
 loadBills();
-</script>
+document.getElementById("themeBtn").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
 
+    if(document.body.classList.contains("dark")){
+        document.getElementById("themeBtn").innerHTML = "☀️ Light";
+    }else{
+        document.getElementById("themeBtn").innerHTML = "🌙 Dark Mode";
+    }
+
+});
+
+</script>
+<button class="fab">
+➕
+</button>
 </body>
 </html>
